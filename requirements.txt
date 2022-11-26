@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+sqlalchemy
+pendulum
+python-dotenv
+

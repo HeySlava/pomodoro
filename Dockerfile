@@ -1,0 +1,14 @@
+FROM python:3.10-slim-bullseye
+
+WORKDIR /opt/app
+
+COPY requirements.txt requirements.txt
+
+RUN pip install --no-cache-dir  pip -U -r requirements.txt
+
+
+EXPOSE 8080
+
+COPY . .
+
+CMD ["python",  "main.py"]
