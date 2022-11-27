@@ -1,11 +1,17 @@
-### The main idea
-Web Server for pomodoro technique. The main advantage is you can easily add it to your i3block/ i3status/ polybar and manage it via curl
+## Web Server for pomodoro technique
+
+### Why?
+- easy to add i3block/ i3status/ polybar
+- REST api service
+- manageable by `curl`
+- You can reboot your laptop and don't lose your session progress
 
 
 ### How to run?
 ```bash
 git clone https://github.com/HeySlava/pomodoro
 # App first look for .env then settings.py to specify port
+# You can configure as docker ENV as well
 # .env
 POMODORO_PORT=<your port>
 docker build -t <image_name> .
@@ -19,10 +25,6 @@ git clone https://github.com/HeySlava/pomodoro
 # .env
 # App first looks for .env then settings.py to specify port
 POMODORO_PORT=8080
-# Default values 25 and 5 minutes
-# Time is currently in seconds
-POMODORO_WORK_DELTA=1500
-POMODORO_PAUSE_DELTA=300
 
 docker build -t pomodoro .
 docker run --name pomodoro -p 8080:8080 -d --restart=always pomodoro
@@ -51,3 +53,8 @@ That's all!
 ![alter text](https://kapitonov.tech/img/f00e57e9271e3a0.png)  
 ![alter text](https://kapitonov.tech/img/dd31562c824ff6f.png)  
 ![alter text](https://kapitonov.tech/img/8aebe326e28331a.png)  
+
+
+### TODO
+- [ ] share session over machines
+- [ ] save history of sessions
