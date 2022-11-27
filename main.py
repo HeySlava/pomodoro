@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from enum import Enum
 
+_MINUTE = 60
 
 class Variables(str, Enum):
     IS_WORK = 'is_work'
@@ -38,7 +39,7 @@ def new(session: Session = Depends(db_session.create_session)):
     services.push_value(session=session, name=Variables.IS_PAUSED.value, value=False)
     services.push_value(session=session, name=Variables.POMODORO_COUNT.value, value=0)
     services.push_value(session=session, name=Variables.TIME.value,
-            value=int(dt.datetime.now().timestamp()) + settings.work_delta)
+            value=int(dt.datetime.now().timestamp()) + settings.work_delta*_MINUTE)
 
     return status.HTTP_200_OK
 
@@ -60,11 +61,11 @@ def toggle(session: Session = Depends(db_session.create_session)):
         services.push_value(session=session, name=Variables.IS_PAUSED, value=False)
         if is_work:
             services.push_value(session=session, name=Variables.TIME,
-                    value=int(dt.datetime.now().timestamp()) + settings.pause_delta)
+                    value=int(dt.datetime.now().timestamp()) + settings.pause_delta*_MINUTE)
 
         else:
             services.push_value(session=session, name=Variables.TIME,
-                    value=int(dt.datetime.now().timestamp()) + settings.work_delta)
+                    value=int(dt.datetime.now().timestamp()) + settings.work_delta*_MINUTE)
         return status.HTTP_200_OK
 
 
@@ -137,7 +138,7 @@ def next(session: Session = Depends(db_session.create_session)):
     if is_work_before:
         services.push_value(session=session,
                 name=Variables.TIME.value,
-                value=int(dt.datetime.now().timestamp()) + settings.pause_delta)
+                value=int(dt.datetime.now().timestamp()) + settings.pause_delta*_MINUTE)
 
     else:
         services.push_value(session=session,
@@ -145,7 +146,7 @@ def next(session: Session = Depends(db_session.create_session)):
                 value=int(cnt.value) + 1)
         services.push_value(session=session,
                 name=Variables.TIME.value,
-                value=int(dt.datetime.now().timestamp()) + settings.work_delta)
+                value=int(dt.datetime.now().timestamp()) + settings.work_delta*_MINUTE)
 
     return status.HTTP_200_OK
 

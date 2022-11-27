@@ -1,12 +1,9 @@
 from pydantic import BaseSettings
 
 
-MINUTE = 60
-
-
 class Settings(BaseSettings):
-    work_delta: int = 25 * MINUTE
-    pause_delta: int = 5 * MINUTE
+    work_delta: int = 25
+    pause_delta: int = 5
     port: int = 8080
     host: str = '0.0.0.0'
 
