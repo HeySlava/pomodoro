@@ -15,8 +15,10 @@ docker run --name --name pomodoro -p <HOST_PORT>:<SERVICE_PORT> -d --restart=alw
 ##### Setup example
 ```bash
 git clone https://github.com/HeySlava/pomodoro
-# App first look for .env then settings.py to specify port
+
 # .env
+# App first looks for .env then settings.py to specify port
+POMODORO_PORT=8080
 # Default values 25 and 5 minutes
 # Time is currently in seconds
 POMODORO_WORK_DELTA=1500
@@ -29,8 +31,8 @@ docker run --name pomodoro -p 8080:8080 -d --restart=always pomodoro
 ### i3 config example
 ```bash
 # POMODORO
-bindsym $mod+t exec curl http://localhost:8080/toggle       # start/stop
 bindsym $mod+shift+n exec curl http://localhost:8080/new    # start new session
+bindsym $mod+t exec curl http://localhost:8080/toggle       # start/stop
 bindsym $mod+n exec curl http://localhost:8080/next         # skip current step
 bindsym $mod+shift+d exec curl http://localhost:8080/stop   # stop current session
 ```
@@ -46,6 +48,6 @@ color=#C9E3DB
 
 That's all!
 
-![alter text](https://kapitonov.tech/img/f00e57e9271e3a0.png)
-![alter text](https://kapitonov.tech/img/dd31562c824ff6f.png)
-![alter text](https://kapitonov.tech/img/8aebe326e28331a.png)
+![alter text](https://kapitonov.tech/img/f00e57e9271e3a0.png)  
+![alter text](https://kapitonov.tech/img/dd31562c824ff6f.png)  
+![alter text](https://kapitonov.tech/img/8aebe326e28331a.png)  
