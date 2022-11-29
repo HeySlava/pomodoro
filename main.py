@@ -22,7 +22,7 @@ class Variables(str, Enum):
 
 class Responses(str, Enum):
     LEFT = '{pomodoro} Time left {minutes}:{seconds}'
-    PERIOD_ENDED = 'Period ended'
+    PERIOD_ENDED = 'Period has ended'
     PAUSE = 'PAUSE'
     # START_ERROR = "You didn't started your pomodoro session"
     START_ERROR = ""
@@ -126,7 +126,7 @@ def next(session: Session = Depends(db_session.create_session)):
     cnt = services.pull_value(session=session, name=Variables.POMODORO_COUNT.value)
 
     if not is_work:
-        return '# TODO'
+        return HTMLResponse(content=Responses.START_ERROR)
     is_work_before = bool(int(is_work.value))
 
     services.push_value(session=session,
@@ -147,6 +147,21 @@ def next(session: Session = Depends(db_session.create_session)):
         services.push_value(session=session,
                 name=Variables.TIME.value,
                 value=int(dt.datetime.now().timestamp()) + settings.work_delta*_MINUTE)
+
+    return status.HTTP_200_OK
+
+
+@app.get('/previous')
+def previous(session: Session = Depends(db_session.create_session)):
+    cnt = services.pull_value(session=session, name=Variables.POMODORO_COUNT.value)
+
+    if not cnt:
+        return HTMLResponse(content=Responses.START_ERROR)
+
+    cnt = int(cnt.value)
+    cnt = 0 if cnt < 1 else cnt - 1
+    services.push_value(session=session,
+            name=Variables.POMODORO_COUNT.value, value=cnt)
 
     return status.HTTP_200_OK
 
