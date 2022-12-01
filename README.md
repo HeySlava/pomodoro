@@ -33,10 +33,11 @@ docker run --name pomodoro -p 8080:8080 -d --restart=always pomodoro
 ### i3 config example
 ```bash
 # POMODORO
-bindsym $mod+shift+n exec curl http://localhost:8080/new    # start new session
-bindsym $mod+t exec curl http://localhost:8080/toggle       # start/stop
-bindsym $mod+n exec curl http://localhost:8080/next         # skip current step
-bindsym $mod+shift+d exec curl http://localhost:8080/stop   # stop current session
+bindsym $mod+shift+n exec curl http://localhost:8080/new       # start new session
+bindsym $mod+t exec curl http://localhost:8080/toggle          # start/stop
+bindsym $mod+n exec curl http://localhost:8080/next            # skip current step
+bindsym $mod+shift+d exec curl http://localhost:8080/stop      # stop current session
+bindsym $mod+shift+m exec curl http://localhost:8080/previous  # pomodoro number - 1
 ```
 
 
