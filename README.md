@@ -10,21 +10,19 @@
 ### How to run?
 ```bash
 git clone https://github.com/HeySlava/pomodoro
-# App first look for .env then settings.py to specify port
-# You can configure as docker ENV as well
-# .env
-POMODORO_PORT=<your port>
+
+# App first looks for .env then settings.py to specify port
+# You can configure it as docker ENV as well
+
 docker build -t <image_name> .
-docker run --name --name pomodoro -p <HOST_PORT>:<SERVICE_PORT> -d --restart=always <image_name>
+docker run --name pomodoro -p <HOST_PORT>:<SERVICE_PORT> -d --restart=always <image_name>
+# or
+docker-compose up -d
 ```
 
 ##### Setup example
 ```bash
 git clone https://github.com/HeySlava/pomodoro
-
-# .env
-# App first looks for .env then settings.py to specify port
-POMODORO_PORT=8080
 
 docker build -t pomodoro .
 docker run --name pomodoro -p 8080:8080 -d --restart=always pomodoro
@@ -57,5 +55,6 @@ That's all!
 
 
 ### TODO
+- [x] add docker-compose
 - [ ] share session over machines
 - [ ] save history of sessions
