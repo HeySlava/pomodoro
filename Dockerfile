@@ -8,6 +8,6 @@ RUN pip install --no-cache-dir  pip -U -r requirements.txt
 
 EXPOSE 8080
 
-COPY . .
+COPY ./pomodoro .
 
 CMD ["python",  "main.py"]
