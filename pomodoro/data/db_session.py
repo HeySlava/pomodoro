@@ -7,7 +7,8 @@ from data.basemodel import Base
 
 _factory = None
 
-def global_init(conn_str: str, echo: bool=False) -> None:
+
+def global_init(conn_str: str, echo: bool = False) -> None:
 
     global _factory
 
@@ -21,7 +22,7 @@ def global_init(conn_str: str, echo: bool=False) -> None:
 
     _factory = orm.sessionmaker(bind=engine)
 
-    from data.models import Condition
+    from data.models import Condition  # noqa: F401
     Base.metadata.create_all(engine)
 
 

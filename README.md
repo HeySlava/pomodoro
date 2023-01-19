@@ -49,9 +49,9 @@ color=#C9E3DB
 
 That's all!
 
-![alter text](https://kapitonov.tech/img/f00e57e9271e3a0.png)  
-![alter text](https://kapitonov.tech/img/dd31562c824ff6f.png)  
-![alter text](https://kapitonov.tech/img/8aebe326e28331a.png)  
+![alter text](https://kapitonov.tech/img/f00e57e9271e3a0.png)
+![alter text](https://kapitonov.tech/img/dd31562c824ff6f.png)
+![alter text](https://kapitonov.tech/img/8aebe326e28331a.png)
 
 
 ### TODO
