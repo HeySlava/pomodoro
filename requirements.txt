@@ -1,5 +1,5 @@
 fastapi
 pendulum
 python-dotenv
-sqlalchemy
+sqlalchemy==1.4.45
 uvicorn
