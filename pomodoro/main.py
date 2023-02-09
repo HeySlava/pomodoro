@@ -38,13 +38,10 @@ def configure_database():
 
 @app.get('/new')
 def new(session: Session = Depends(db_session.create_session)):
-    services.push_value(session=session, name=Variables.IS_WORK.value, value=True)
-    services.push_value(session=session, name=Variables.IS_PAUSED.value, value=False)
-    services.push_value(session=session, name=Variables.POMODORO_COUNT.value, value=0)
-    services.push_value(
-        session=session, name=Variables.TIME.value,
-        value=int(dt.datetime.now().timestamp()) + settings.work_delta*_MINUTE,
-    )
+    services.refresh_database(
+            session=session,
+            work_delta=settings.work_delta*_MINUTE,
+        )
 
     return status.HTTP_200_OK
 

@@ -1,6 +1,11 @@
-from sqlalchemy.orm import Session
-from data.models import Condition
+import datetime as dt
 from typing import Any
+
+from sqlalchemy.orm import Session
+
+from data.models import Condition
+
+from main import Variables
 
 
 def push_value(session: Session, name: str, value: Any):
@@ -23,3 +28,17 @@ def delete_value(session: Session, name: str):
             .where(Condition.name == name).one_or_none()
     session.delete(query)
     session.commit()
+
+
+def refresh_database(
+        session: Session,
+        work_delta: int,
+) -> None:
+    push_value(session=session, name=Variables.IS_WORK, value=True)
+    push_value(session=session, name=Variables.IS_PAUSED, value=False)
+    push_value(session=session, name=Variables.POMODORO_COUNT, value=0)
+    push_value(
+            session=session,
+            name=Variables.TIME,
+            value=int(dt.datetime.now().timestamp()) + work_delta,
+    )
