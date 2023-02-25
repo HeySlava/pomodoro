@@ -25,24 +25,24 @@ docker-compose up -d
 git clone https://github.com/HeySlava/pomodoro
 
 docker build -t pomodoro .
-docker run --name pomodoro -p 8080:8080 -d --restart=always pomodoro
+docker run --name pomodoro -p 9999:9999 -d --restart=always pomodoro
 ```
 
 ### i3 config example
 ```bash
 # POMODORO
-bindsym $mod+shift+n exec curl http://localhost:8080/new       # start new session
-bindsym $mod+t exec curl http://localhost:8080/toggle          # start/stop
-bindsym $mod+n exec curl http://localhost:8080/next            # skip current step
-bindsym $mod+shift+d exec curl http://localhost:8080/stop      # stop current session
-bindsym $mod+shift+m exec curl http://localhost:8080/previous  # pomodoro number - 1
+bindsym $mod+shift+n exec curl http://localhost:9999/new       # start new session
+bindsym $mod+t exec curl http://localhost:9999/toggle          # start/stop
+bindsym $mod+n exec curl http://localhost:9999/next            # skip current step
+bindsym $mod+shift+d exec curl http://localhost:9999/stop      # stop current session
+bindsym $mod+shift+m exec curl http://localhost:9999/previous  # pomodoro number - 1
 ```
 
 
 ### i3block example
 ```bash
 [POMODORO]
-command=curl http://localhost:8080/time
+command=curl http://localhost:9999/time
 interval=1
 color=#C9E3DB
 ```

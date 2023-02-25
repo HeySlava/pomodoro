@@ -6,7 +6,7 @@ COPY requirements.txt requirements.txt
 
 RUN pip install --no-cache-dir  pip -U -r requirements.txt
 
-EXPOSE 8080
+EXPOSE 9999
 
 COPY ./pomodoro .
 

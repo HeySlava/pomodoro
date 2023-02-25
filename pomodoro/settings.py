@@ -4,7 +4,7 @@ from pydantic import BaseSettings
 class Settings(BaseSettings):
     work_delta: int = 25
     pause_delta: int = 5
-    port: int = 8080
+    port: int = 9999
     host: str = '0.0.0.0'
 
     class Config:
