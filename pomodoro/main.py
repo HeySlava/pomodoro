@@ -1,16 +1,35 @@
-from fastapi.responses import HTMLResponse
-import uvicorn
 import datetime as dt
-import services
+import uvicorn
+from enum import Enum
+from dataclasses import dataclass
+from dataclasses import field
+
 from settings import settings
 
-from fastapi import FastAPI, status, Depends
-from data import db_session
-from sqlalchemy.orm import Session
+from fastapi import FastAPI
+from fastapi import status
+from fastapi.responses import HTMLResponse
 
-from enum import Enum
+
+@dataclass
+class Storage:
+    work_delta: int
+    pause_delta: int
+    pause_start: int = 0
+    end_time: int = field(init=False)
+    is_work: bool = True
+    is_paused: bool = False
+    pomodoro_cnt: int = 0
+
+    def __post_init__(self):
+        self.end_time = (
+                int(dt.datetime.now().timestamp()) +
+                self.work_delta
+            )
+
 
 _MINUTE = 60
+storage = None
 
 
 class Variables(str, Enum):
@@ -25,193 +44,119 @@ class Responses(str, Enum):
     LEFT = '{pomodoro} Time left {minutes}:{seconds}'
     PERIOD_ENDED = 'Period has ended'
     PAUSE = 'PAUSE'
-    # START_ERROR = "You didn't started your pomodoro session"
-    START_ERROR = ''
+    NO_POMODORO = ''
 
 
 app = FastAPI()
 
 
-def configure_database():
-    db_session.global_init('sqlite:///pomodoro.sqlite', echo=False)
+def init_database():
+    global storage
+
+    storage = Storage(
+            work_delta=settings.work_delta*_MINUTE,
+            pause_delta=settings.pause_delta*_MINUTE,
+        )
 
 
 @app.get('/new')
-def new(session: Session = Depends(db_session.create_session)):
-    services.refresh_database(
-            session=session,
-            work_delta=settings.work_delta*_MINUTE,
-        )
-
+def new():
+    init_database()
     return status.HTTP_200_OK
 
 
 @app.get('/toggle')
-def toggle(session: Session = Depends(db_session.create_session)):
+def toggle():
 
-    is_paused = services.pull_value(session=session, name=Variables.IS_PAUSED.value)
-    is_work = services.pull_value(session=session, name=Variables.IS_WORK.value)
-    final_date = services.pull_value(session=session, name=Variables.TIME.value)
-
-    if not is_paused or not final_date:
-        return HTMLResponse(content=Responses.START_ERROR)
-
-    is_work = bool(int(is_work.value))
-
-    if not final_date.value:
-        services.push_value(session=session, name=Variables.IS_WORK, value=not is_work)
-        services.push_value(session=session, name=Variables.IS_PAUSED, value=False)
-        if is_work:
-            services.push_value(
-                session=session, name=Variables.TIME,
-                value=int(dt.datetime.now().timestamp()) + settings.pause_delta*_MINUTE,
-            )
-
-        else:
-            services.push_value(
-                session=session, name=Variables.TIME,
-                value=int(dt.datetime.now().timestamp()) + settings.work_delta*_MINUTE,
-            )
+    if storage is None:
         return status.HTTP_200_OK
 
-    is_paused_before = bool(int(is_paused.value))
-    if is_paused_before:
-        pause_start = services.pull_value(
-                session=session,
-                name=Variables.PAUSE_START.value,
-        )
-        pause_start = int(pause_start.value)
-        final_date = int(final_date.value)
+    if storage.is_paused:
+        storage.is_paused = False
         now = int(dt.datetime.now().timestamp())
-        services.push_value(
-            session=session,
-            name=Variables.TIME.value,
-            value=final_date + (now - pause_start),
-        )
+        paused_time = now - storage.pause_start
+        storage.end_time = storage.end_time + paused_time
     else:
-        services.push_value(
-            session=session,
-            name=Variables.PAUSE_START.value,
-            value=int(dt.datetime.now().timestamp()),
-        )
-    services.push_value(
-        session=session,
-        name=Variables.IS_PAUSED.value,
-        value=not is_paused_before,
-    )
-    return status.HTTP_200_OK, is_paused
+        storage.is_paused = True
+        storage.pause_start = int(dt.datetime.now().timestamp())
+
+    return status.HTTP_200_OK
 
 
 @app.get('/time')
-def time(session: Session = Depends(db_session.create_session)):
-    final_date = services.pull_value(session=session, name=Variables.TIME.value)
+def time():
 
-    if not final_date:
-        return HTMLResponse(content=Responses.START_ERROR)
+    if storage is None:
+        return HTMLResponse(content=Responses.NO_POMODORO)
 
-    is_paused = bool(
-        int(
-            services.pull_value(
-                session=session,
-                name=Variables.IS_PAUSED.value,
-            ).value,
-        ),
-    )
-
-    if not final_date.value:
-        return HTMLResponse(content=Responses.PERIOD_ENDED)
-
-    if is_paused:
+    if storage.is_paused:
         return HTMLResponse(content=Responses.PAUSE)
 
-    final_date = int(final_date.value)
-    delta = final_date - int(dt.datetime.now().timestamp())
-    if delta < 0:
-        services.push_value(session=session, name=Variables.TIME.value, value=None)
+    if storage.end_time < int(dt.datetime.now().timestamp()):
         return HTMLResponse(content=Responses.PERIOD_ENDED)
-    else:
-        pomodoro_cnt = services.pull_value(
-                session=session, name=Variables.POMODORO_COUNT.value,
-        )
-        pomodoro_cnt = int(pomodoro_cnt.value)
-        return HTMLResponse(
-                content=Responses.LEFT.value.format(
-                    pomodoro='🍅' * pomodoro_cnt,
-                    minutes=delta // 60,
-                    seconds=str(delta % 60).zfill(2),
-                ),
-        )
+
+    times_left_in_seconds = storage.end_time - int(dt.datetime.now().timestamp())
+
+    return HTMLResponse(
+            content=Responses.LEFT.value.format(
+                pomodoro='🍅' * storage.pomodoro_cnt,
+                minutes=times_left_in_seconds // 60,
+                seconds=str(times_left_in_seconds % 60).zfill(2),
+            ),
+    )
 
 
 @app.get('/next')
-def next(session: Session = Depends(db_session.create_session)):
-    is_work = services.pull_value(session=session, name=Variables.IS_WORK.value)
-    cnt = services.pull_value(session=session, name=Variables.POMODORO_COUNT.value)
+def next():
 
-    if not is_work:
-        return HTMLResponse(content=Responses.START_ERROR)
-    is_work_before = bool(int(is_work.value))
+    if storage is None:
+        init_database()
+        return status.HTTP_200_OK
 
-    services.push_value(
-        session=session,
-        name=Variables.IS_WORK.value, value=not is_work_before,
-    )
-    services.push_value(
-        session=session,
-        name=Variables.IS_PAUSED.value, value=False,
-    )
+    storage.is_paused = False
+    now = int(dt.datetime.now().timestamp())
 
-    if is_work_before:
-        services.push_value(
-            session=session,
-            name=Variables.TIME.value,
-            value=int(dt.datetime.now().timestamp()) + settings.pause_delta*_MINUTE,
-        )
-
+    if storage.is_work:
+        storage.pomodoro_cnt += 1
+        storage.end_time = now + storage.pause_delta
     else:
-        services.push_value(
-            session=session,
-            name=Variables.POMODORO_COUNT.value,
-            value=int(cnt.value) + 1,
-        )
-        services.push_value(
-            session=session,
-            name=Variables.TIME.value,
-            value=int(dt.datetime.now().timestamp()) + settings.work_delta*_MINUTE,
-        )
+        storage.end_time = now + storage.work_delta
+
+    storage.is_work = not storage.is_work
 
     return status.HTTP_200_OK
 
 
 @app.get('/previous')
-def previous(session: Session = Depends(db_session.create_session)):
-    cnt = services.pull_value(session=session, name=Variables.POMODORO_COUNT.value)
+def previous():
 
-    if not cnt:
-        return HTMLResponse(content=Responses.START_ERROR)
+    if storage is None or not storage.pomodoro_cnt:
+        init_database()
+        return status.HTTP_200_OK
 
-    cnt = int(cnt.value)
-    cnt = 0 if cnt < 1 else cnt - 1
-    services.push_value(
-        session=session,
-        name=Variables.POMODORO_COUNT.value, value=cnt,
-    )
+    storage.is_paused = False
+    storage.is_work = not storage.is_work
+    now = int(dt.datetime.now().timestamp())
+
+    if storage.is_work:
+        storage.pomodoro_cnt = storage.pomodoro_cnt - 1
+        storage.end_time = now + storage.pause_delta
+    else:
+        storage.end_time = now + storage.work_delta
 
     return status.HTTP_200_OK
 
 
 @app.get('/stop')
-def stop(session: Session = Depends(db_session.create_session)):
-    services.delete_value(session=session, name=Variables.TIME.value)
+def stop():
+    global storage
+    storage = None
     return status.HTTP_200_OK
 
 
 if __name__ == '__main__':
-    configure_database()
     uvicorn.run(
         app,
         port=settings.port,
         host=settings.host,
     )
-else:
-    configure_database()
