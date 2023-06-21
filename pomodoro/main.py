@@ -1,7 +1,7 @@
 import datetime as dt
 import uvicorn
 from enum import Enum
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from dataclasses import field
 
 from settings import settings
@@ -13,19 +13,26 @@ from fastapi.responses import HTMLResponse
 
 @dataclass
 class Storage:
+    __add_to_dict__ = ['time_left']
     work_delta: int
     pause_delta: int
     pause_start: int = 0
-    end_time: int = field(init=False)
+    end_time: int = field(init=False, repr=False)
     is_work: bool = True
     is_paused: bool = False
     pomodoro_cnt: int = 0
 
     def __post_init__(self):
-        self.end_time = (
-                int(dt.datetime.now().timestamp()) +
-                self.work_delta
-            )
+        self.end_time = int(dt.datetime.now().timestamp()) + self.work_delta
+
+    def _asdict(self):
+        return {
+                **asdict(self),
+                **{a: getattr(self, a) for a in getattr(self, '__add_to_dict__', [])}}
+
+    @property
+    def time_left(self) -> int:
+        return self.end_time - int(dt.datetime.now().timestamp())
 
 
 _MINUTE = 60
@@ -95,7 +102,7 @@ def time():
     if storage.end_time < int(dt.datetime.now().timestamp()):
         return HTMLResponse(content=Responses.PERIOD_ENDED)
 
-    times_left_in_seconds = storage.end_time - int(dt.datetime.now().timestamp())
+    times_left_in_seconds = storage.time_left
 
     return HTMLResponse(
             content=Responses.LEFT.value.format(
@@ -152,6 +159,12 @@ def stop():
     global storage
     storage = None
     return status.HTTP_200_OK
+
+
+# TODO: add response_model but think over @property
+@app.get('/time&format=json')
+def json():
+    return None if not storage else storage._asdict()
 
 
 if __name__ == '__main__':
