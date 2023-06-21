@@ -36,10 +36,6 @@ class Storage:
         return self.end_time - int(dt.datetime.now().timestamp())
 
 
-_MINUTE = 60
-storage = None
-
-
 class Variables(str, Enum):
     IS_WORK = 'is_work'
     IS_PAUSED = 'is_paused'
@@ -53,6 +49,10 @@ class Responses(str, Enum):
     PERIOD_ENDED = 'Period has ended'
     PAUSE = 'PAUSE'
     NO_POMODORO = ''
+
+
+_MINUTE = 60
+storage = None
 
 
 app = FastAPI()
