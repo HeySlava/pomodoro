@@ -8,6 +8,7 @@ from settings import settings
 
 from fastapi import FastAPI
 from fastapi import status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
 
@@ -55,6 +56,14 @@ class Responses(str, Enum):
 
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*'],
+)
 
 
 def init_database():
