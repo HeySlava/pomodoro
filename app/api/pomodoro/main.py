@@ -173,7 +173,7 @@ def stop():
 # TODO: add response_model but think over @property
 @app.get('/time&format=json')
 def json():
-    return None if not storage else storage._asdict()
+    return {} if not storage else storage._asdict()
 
 
 if __name__ == '__main__':
