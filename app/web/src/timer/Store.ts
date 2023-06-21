@@ -80,7 +80,7 @@ export class Store {
     const date = new Date(this.timeLeft)
     const minutes = date.getMinutes()
     const seconds = date.getSeconds()
-    return `${addZeroToStart(minutes)}.${addZeroToStart(seconds)}`
+    return `${addZeroToStart(minutes)}:${addZeroToStart(seconds)}`
   }
 
   get totalTime() {
