@@ -19,9 +19,34 @@ const Timer = () => {
   const svgSize = useGetSize("svg")
 
   useEffect(() => {
+
+    const keyHandler = (ev: KeyboardEvent) => {
+      switch (ev.key) {
+        case "N":
+          store.newSession()
+          break;
+        case "t":
+          store.toggle()
+          break;
+        case "n":
+          store.nextStep()
+          break;
+        case "D":
+          store.stopSession()
+          break;
+        case "m":
+          store.previousSession()
+          break;
+        default:
+          break;
+      }
+    }
+
     store.startPolling()
+    document.addEventListener("keypress", keyHandler)
     return () => {
       store.stopPolling()
+      document.removeEventListener("keypress", keyHandler)
     }
   }, [])
 

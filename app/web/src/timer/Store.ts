@@ -75,6 +75,22 @@ export class Store {
     if (this.intervalIds.getData) clearInterval(this.intervalIds.getData)
   }
 
+  newSession() {
+    this.service.newSession()
+  }
+  toggle() {
+    this.service.toggle()
+  }
+  nextStep() {
+    this.service.nextStep()
+  }
+  stopSession() {
+    this.service.stopSession()
+  }
+  previousSession() {
+    this.service.previousSession()
+  }
+
   get formatedTime() {
     if (!this.timeLeft) return ''
     const date = new Date(this.timeLeft)
