@@ -59,8 +59,8 @@ export class Store {
 
   updateData(data: TGetDataRes) {
 
-    this.workTypes.rest = data.pause_delta * 60_000
-    this.workTypes.work = data.work_delta * 60_000
+    this.workTypes.rest = data.pause_delta * 1_000
+    this.workTypes.work = data.work_delta * 1_000
 
     this.currentWorkType = data.is_work ? WORK_TYPE.WORK : WORK_TYPE.REST
 
