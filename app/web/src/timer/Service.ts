@@ -14,7 +14,8 @@ export type TGetDataRes = {
 @injectable()
 export class Service {
   async getData() {
-    const data = await fetch('http://' + import.meta.env.VITE_POMODORO_HOST + ':' + import.meta.env.VITE_POMODORO_PORT + '/time?format=json')
+    // TODO: get HOST and PORT from env
+    const data = await fetch('http://0.0.0.0:9999/time&format=json')
     return (await data.json()) as TGetDataRes
   }
 }
