@@ -33,7 +33,13 @@ class Storage:
 
     @property
     def time_left(self) -> int:
-        return self.end_time - int(dt.datetime.now().timestamp())
+        now = int(dt.datetime.now().timestamp())
+        if not self.is_paused:
+            time_left = self.end_time - now
+        else:
+            time_left = now - self.pause_start
+            time_left = self.end_time - self.pause_start
+        return time_left
 
 
 class Variables(str, Enum):
