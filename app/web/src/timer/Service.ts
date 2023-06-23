@@ -18,7 +18,7 @@ export class Service {
     this.baseUrl = 'http://' + import.meta.env.VITE_POMODORO_HOST + ':' + import.meta.env.VITE_POMODORO_PORT
   }
   async getData() {
-    const data = await fetch(this.baseUrl + '/time?format=json')
+    const data = await fetch(this.baseUrl + '/time&format=json')
     return (await data.json()) as TGetDataRes
   }
   async newSession() {
