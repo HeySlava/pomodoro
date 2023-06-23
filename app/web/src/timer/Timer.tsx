@@ -23,18 +23,23 @@ const Timer = () => {
     const keyHandler = (ev: KeyboardEvent) => {
       switch (ev.key) {
         case "N":
+        case "N":
           store.newSession()
           break;
         case "t":
+        case "е":
           store.toggle()
           break;
         case "n":
+        case "т":
           store.nextStep()
           break;
         case "D":
+        case "В":
           store.stopSession()
           break;
         case "m":
+        case "ь":
           store.previousSession()
           break;
         default:
