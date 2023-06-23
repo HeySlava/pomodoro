@@ -13,9 +13,27 @@ export type TGetDataRes = {
 
 @injectable()
 export class Service {
+  private baseUrl: string
+  constructor() {
+    this.baseUrl = 'http://' + import.meta.env.VITE_POMODORO_HOST + ':' + import.meta.env.VITE_POMODORO_PORT
+  }
   async getData() {
-    // TODO: get HOST and PORT from env
-    const data = await fetch('http://0.0.0.0:9999/time&format=json')
+    const data = await fetch(this.baseUrl + '/time&format=json')
     return (await data.json()) as TGetDataRes
+  }
+  async newSession() {
+    fetch(this.baseUrl + "/new")
+  }
+  async toggle() {
+    fetch(this.baseUrl + "/toggle")
+  }
+  async nextStep() {
+    fetch(this.baseUrl + "/next")
+  }
+  async stopSession() {
+    fetch(this.baseUrl + "/stop")
+  }
+  async previousSession() {
+    fetch(this.baseUrl + "/previous")
   }
 }
