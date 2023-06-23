@@ -157,14 +157,15 @@ def previous():
         return status.HTTP_200_OK
 
     storage.is_paused = False
-    storage.is_work = not storage.is_work
     now = int(dt.datetime.now().timestamp())
 
     if storage.is_work:
-        storage.pomodoro_cnt = storage.pomodoro_cnt - 1
         storage.end_time = now + storage.pause_delta
+        storage.is_work = False
     else:
+        storage.is_work = True
         storage.end_time = now + storage.work_delta
+        storage.pomodoro_cnt = storage.pomodoro_cnt - 1
 
     return status.HTTP_200_OK
 
