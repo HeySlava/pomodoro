@@ -91,13 +91,13 @@ export class Store {
     this.service.previousSession()
   }
 
-  get formatedTime() {
-    if (!this.timeLeft) return ''
-    const date = new Date(this.timeLeft)
-    const minutes = date.getMinutes()
-    const seconds = date.getSeconds()
-    return `${addZeroToStart(minutes)}:${addZeroToStart(seconds)}`
-  }
+get formatedTime() {
+  if (!this.timeLeft) return ''
+  const minutes = Math.floor(Math.abs(this.timeLeft) / 60000)
+  const seconds = ((Math.abs(this.timeLeft) % 60000) / 1000).toFixed(0)
+  const sign = this.timeLeft < 0 ? '-' : ''
+  return `${sign}${addZeroToStart(minutes)}:${addZeroToStart(seconds)}`
+}
 
   get totalTime() {
     return this.workTypes[this.currentWorkType]
