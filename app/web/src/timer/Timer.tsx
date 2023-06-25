@@ -23,7 +23,7 @@ const Timer = () => {
     const keyHandler = (ev: KeyboardEvent) => {
       switch (ev.key) {
         case "N":
-        case "N":
+        case "Т":
           store.newSession()
           break;
         case "t":
