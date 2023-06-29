@@ -56,6 +56,7 @@ const Timer = () => {
   }, [])
 
   useEffect(() => {
+    document.title = store.formatedTime
     if (store.timeLeft <= 0) audio.play()
   }, [store.timeLeft])
 
