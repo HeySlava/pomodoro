@@ -28,6 +28,7 @@ const Timer = () => {
           break;
         case "t":
         case "е":
+        case " ":
           store.toggle()
           break;
         case "n":
