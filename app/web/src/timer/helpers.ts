@@ -1,37 +1,14 @@
-import { useIsMoble } from "../helpers"
-
-export const sizes = {
-  svg: {
-    mobile: 262,
-    desk: 700
-  },
-  cr: {
-    mobile: 95,
-    desk: 250
-  },
-  pomodoro: {
-    mobile: 19,
-    desk: 50,
-  },
-  timeLeft: {
-    mobile: 38,
-    desk: 96,
-  },
-  workType: {
-    mobile: 18,
-    desk: 48
-  },
-  pomodoroCount: {
-    mobile: 10,
-    desk: 24
-  },
-  pause: {
-    mobile: 60,
-    desk: 150
-  }
-} as const
+const sizes = {
+  svg: 0.7,
+  cr: 0.25,
+  pomodoro: 0.05,
+  timeLeft: 0.096,
+  workType: 0.048,
+  pomodoroCount: 0.024,
+  pause: 0.15
+}
 
 export const useGetSize = (key: keyof typeof sizes) => {
-  const isMobile = useIsMoble()
-  return sizes[key][isMobile ? "mobile" : "desk"]
+  const baseSize = Math.min(window.visualViewport?.width || 0, window.visualViewport?.height || 0) * 1.2
+  return sizes[key] * baseSize
 }
