@@ -1,3 +1,4 @@
-fastapi
-python-dotenv
-uvicorn
+fastapi==0.99.1
+pydantic==1.10.11
+python-dotenv==1.0.0
+uvicorn==0.22.0
