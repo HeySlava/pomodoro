@@ -14,19 +14,10 @@ git clone https://github.com/HeySlava/pomodoro
 # App first looks for .env then settings.py to specify port
 # You can configure it as docker ENV as well
 
-docker build -t <image_name> .
-docker run --name pomodoro -p <HOST_PORT>:<SERVICE_PORT> -d --restart=always <image_name>
-# or
+cp example.env .env
 docker-compose up -d
 ```
 
-##### Setup example
-```bash
-git clone https://github.com/HeySlava/pomodoro
-
-docker build -t pomodoro .
-docker run --name pomodoro -p 9999:9999 -d --restart=always pomodoro
-```
 
 ### i3 config example
 ```bash
