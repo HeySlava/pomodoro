@@ -4,3 +4,13 @@
   transform-origin: center;
   transform-box: fill-box;
 }
+
+.helpModal {
+  font-size: 2.5vh;
+}
+
+@media (max-width: 600px) {
+  .helpModal {
+    font-size: .7rem;
+  }
+}
