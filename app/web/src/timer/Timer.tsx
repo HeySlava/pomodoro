@@ -22,7 +22,7 @@ const Timer = () => {
 
   useEffect(() => {
     const keyHandler = (ev: KeyboardEvent) => {
-      if (ev.key === "?") {
+      if (ev.key === "," || ev.key === "?") {
         store.toggleIsHelpModalOpen();
       }
 
