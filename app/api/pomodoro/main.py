@@ -1,15 +1,15 @@
 import datetime as dt
-import uvicorn
-from enum import Enum
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
+from dataclasses import dataclass
 from dataclasses import field
+from enum import Enum
 
-from settings import settings
-
+import uvicorn
 from fastapi import FastAPI
 from fastapi import status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
+from settings import settings
 
 
 @dataclass
