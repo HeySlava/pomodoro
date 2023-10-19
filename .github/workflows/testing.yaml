@@ -10,4 +10,4 @@ jobs:
   main:
     uses: heyslava/workflows/.github/workflows/tox.yml@v0.3.0
     with:
-      env: '["py39", "py310", "py311"]'
+      env: '["py39", "py310", "py311", "py312"]'
