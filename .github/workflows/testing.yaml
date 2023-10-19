@@ -1,0 +1,13 @@
+name: testing
+
+on:
+  push:
+    branches: [main, test-me-*]
+    tags:
+  pull_request:
+
+jobs:
+  main:
+    uses: heyslava/workflows/.github/workflows/tox.yml@v0.3.0
+    with:
+      env: '["py39", "py310", "py311"]'
