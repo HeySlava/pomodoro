@@ -1,7 +1,3 @@
-import datetime as dt
-from dataclasses import asdict
-from dataclasses import dataclass
-from dataclasses import field
 from enum import Enum
 
 import uvicorn
@@ -10,36 +6,8 @@ from fastapi import status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from settings import settings
-
-
-@dataclass
-class Storage:
-    __add_to_dict__ = ['time_left']
-    work_delta: int
-    pause_delta: int
-    pause_start: int = 0
-    end_time: int = field(init=False, repr=False)
-    is_work: bool = True
-    is_paused: bool = False
-    pomodoro_cnt: int = 0
-
-    def __post_init__(self):
-        self.end_time = int(dt.datetime.now().timestamp()) + self.work_delta
-
-    def _asdict(self):
-        return {
-                **asdict(self),
-                **{a: getattr(self, a) for a in getattr(self, '__add_to_dict__', [])}}
-
-    @property
-    def time_left(self) -> int:
-        now = int(dt.datetime.now().timestamp())
-        if not self.is_paused:
-            time_left = self.end_time - now
-        else:
-            time_left = now - self.pause_start
-            time_left = self.end_time - self.pause_start
-        return time_left
+from storage import now_timestamp
+from storage import Storage
 
 
 class Variables(str, Enum):
@@ -57,12 +25,8 @@ class Responses(str, Enum):
     NO_POMODORO = ''
 
 
-_MINUTE = 60
-storage = None
-
-
 app = FastAPI()
-
+app.state.storage = None
 app.add_middleware(
     CORSMiddleware,
     allow_origins=['*'],
@@ -72,56 +36,48 @@ app.add_middleware(
 )
 
 
-def init_database():
-    global storage
-
+def init_database(app: FastAPI) -> None:
+    MINUTE = 60
     storage = Storage(
-            work_delta=settings.work_delta*_MINUTE,
-            pause_delta=settings.pause_delta*_MINUTE,
+            work_delta=settings.work_delta*MINUTE,
+            pause_delta=settings.pause_delta*MINUTE,
         )
+    app.state.storage = storage
 
 
 @app.get('/new')
 def new():
-    init_database()
+    init_database(app)
     return status.HTTP_200_OK
 
 
 @app.get('/toggle')
 def toggle():
 
-    if storage is None:
+    if app.state.storage is None:
         return status.HTTP_200_OK
 
-    if storage.is_paused:
-        storage.is_paused = False
-        now = int(dt.datetime.now().timestamp())
-        paused_time = now - storage.pause_start
-        storage.end_time = storage.end_time + paused_time
-    else:
-        storage.is_paused = True
-        storage.pause_start = int(dt.datetime.now().timestamp())
-
+    app.state.storage.toggle()
     return status.HTTP_200_OK
 
 
 @app.get('/time')
 def time():
 
-    if storage is None:
+    if app.state.storage is None:
         return HTMLResponse(content=Responses.NO_POMODORO)
 
-    if storage.is_paused:
+    if app.state.storage.is_paused:
         return HTMLResponse(content=Responses.PAUSE)
 
-    if storage.end_time < int(dt.datetime.now().timestamp()):
+    if app.state.storage.end_time < now_timestamp():
         return HTMLResponse(content=Responses.PERIOD_ENDED)
 
-    times_left_in_seconds = storage.time_left
+    times_left_in_seconds = app.state.storage.time_left
 
     return HTMLResponse(
             content=Responses.LEFT.value.format(
-                pomodoro='🍅' * storage.pomodoro_cnt,
+                pomodoro='🍅' * app.state.storage.pomodoro_cnt,
                 minutes=times_left_in_seconds // 60,
                 seconds=str(times_left_in_seconds % 60).zfill(2),
             ),
@@ -131,56 +87,36 @@ def time():
 @app.get('/next')
 def next():
 
-    if storage is None:
-        init_database()
+    if app.state.storage is None:
+        init_database(app)
         return status.HTTP_200_OK
 
-    storage.is_paused = False
-    now = int(dt.datetime.now().timestamp())
-
-    if storage.is_work:
-        storage.pomodoro_cnt += 1
-        storage.end_time = now + storage.pause_delta
-    else:
-        storage.end_time = now + storage.work_delta
-
-    storage.is_work = not storage.is_work
-
+    app.state.storage.is_paused = False
+    app.state.storage.next_period()
     return status.HTTP_200_OK
 
 
 @app.get('/previous')
 def previous():
 
-    if storage is None or not storage.pomodoro_cnt:
-        init_database()
+    if app.state.storage is None or not app.state.storage.pomodoro_cnt:
+        init_database(app)
         return status.HTTP_200_OK
 
-    storage.is_paused = False
-    now = int(dt.datetime.now().timestamp())
-
-    if storage.is_work:
-        storage.end_time = now + storage.pause_delta
-        storage.is_work = False
-    else:
-        storage.is_work = True
-        storage.end_time = now + storage.work_delta
-        storage.pomodoro_cnt = storage.pomodoro_cnt - 1
-
+    app.state.storage.previous_period()
     return status.HTTP_200_OK
 
 
 @app.get('/stop')
 def stop():
-    global storage
-    storage = None
+    app.state.storage = None
     return status.HTTP_200_OK
 
 
 # TODO: add response_model but think over @property
 @app.get('/time&format=json')
 def json():
-    return {} if not storage else storage._asdict()
+    return {} if not app.state.storage else app.state.storage.asdict()
 
 
 if __name__ == '__main__':
