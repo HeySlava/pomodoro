@@ -1,4 +1,4 @@
-FROM python:3.10-slim-bullseye
+FROM python:3.13-slim
 
 WORKDIR /opt/app
 
@@ -6,10 +6,9 @@ COPY requirements.txt requirements.txt
 
 ENV PATH=/venv/bin:$PATH
 
-RUN :\
-    && python -m venv /venv \
-    && pip install --no-cache-dir  pip -U -r requirements.txt \
-    && :
+RUN --mount=type=cache,target=/root/.cache/pip \
+    python -m venv /venv \
+    && pip install -r requirements.txt
 
 EXPOSE 9999
 
